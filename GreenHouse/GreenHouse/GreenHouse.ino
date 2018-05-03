@@ -23,7 +23,7 @@ enum CMDS
 	findOnewire,
 	findI2c
 };
-enum COMPLETION 
+enum COMPLETION
 {
 	failer,
 	succes
@@ -40,11 +40,11 @@ struct Zone
 	int_fast8_t valveOverRide;
 };
 void setup()
-{	
-	
+{
+
 
 	//bellow is used for one wire devces
-	
+
 	Main();
 	//wire.search(address);
 }
@@ -101,25 +101,25 @@ void Main()
 
 
 
-void Display(byte state,Zone zones[], byte zonesLength,byte address)
+void Display(byte state, Zone zones[], byte zonesLength, byte address)
 {
 	//switch for buttons
 	//
 	//
-	state = state >=  zonesLength ? 0 : state;
+	state = state >= zonesLength ? 0 : state;
 	byte letter = state + 0x41;
 	// write to i2c device
-	
+
 
 }
-void Update(Zone Zones[],uint8_t zoneLength,OneWire wire,TwoWire twoWire)// check all sensors and set controls
+void Update(Zone Zones[], uint8_t zoneLength, OneWire wire, TwoWire twoWire)// check all sensors and set controls
 {
 
-	for (int zone=0;zone<zoneLength;++zone)
+	for (int zone = 0; zone < zoneLength; ++zone)
 	{
 		//get moisture level from multichannel analog to i2c converter
 		//Zones[zone].currentMoistureLevel = twoWire.requestFrom()
-		Zones[zone].valveStatus = Zones[zone].setMoistureLevel <= Zones[zone].currentMoistureLevel ? 0 : 255;		
+		Zones[zone].valveStatus = Zones[zone].setMoistureLevel <= Zones[zone].currentMoistureLevel ? 0 : 255;
 	}
 
 }
@@ -127,7 +127,7 @@ void Reset() //?
 {
 
 }
-byte GetTemp(byte addr,OneWire wire)//get tempurature of green house and outdoors
+byte GetTemp(byte addr, OneWire wire)//get tempurature of green house and outdoors
 {
 	wire.select(addr);
 }
@@ -141,7 +141,7 @@ void SetAlarm()//set alarms if tempurature is outside of certin bounds
 }
 void SetValve()//set water valves
 {
-	
+
 }
 void SetValve(byte addr)//set water valves
 {
