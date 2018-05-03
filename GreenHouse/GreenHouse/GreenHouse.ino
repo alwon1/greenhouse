@@ -2,6 +2,7 @@
  Name:		GreenHouse.ino
  Created:	5/1/2018 9:03:26 PM
  Author:	Allyn
+ Use proper compiler
 */
 
 // the setup function runs once when you press reset or power the board
@@ -21,7 +22,8 @@ enum CMDS
 	getSoil,
 	setSoil,
 	findOnewire,
-	findI2c
+	findI2c,
+	addZone
 };
 enum COMPLETION
 {
@@ -60,6 +62,7 @@ void Main()
 	Zone Zones[10];
 	byte displayStat = 0;
 	Serial.begin(9600);
+	
 	while (true)
 	{
 		if (Serial.available())
@@ -71,7 +74,7 @@ void Main()
 				Reset();
 				break;
 			case getTemp:
-				GetTemp();
+				//GetTemp();
 				break;
 			case getHumidity:
 				GetHumidity();
@@ -80,16 +83,16 @@ void Main()
 				SetAlarm();
 				break;
 			case setValve:
-				SetValve();
+				//SetValve();
 				break;
 			case setAir:
 				SetAir();
 				break;
 			case getSoil:
-				GetSoil();
+				//GetSoil();
 				break;
 			case setSoil:
-				SetSoil();
+				//SetSoil();
 				break;
 			default:
 				Serial.write(failer);
@@ -97,8 +100,8 @@ void Main()
 			}
 		}
 		// add timer
-		Update();
-		Display();
+		//Update();
+		//Display();
 		
 	}
 }
@@ -133,13 +136,25 @@ void Update(Zone Zones[], uint8_t zoneLength, OneWire wire, TwoWire twoWire)// c
 	}
 
 }
+
+Zone addZone()
+{
+	Serial.write(succes);
+	Zone zone;
+	while (!Serial.available)
+	{
+
+	}
+	return zone;
+}
+
 void Reset() //?
 {
 
 }
 byte GetTemp(byte addr, OneWire wire)//get tempurature of green house and outdoors
 {
-	wire.select(addr);
+	//wire.select(addr);
 }
 void GetHumidity()//get the humidity of the green house
 {
