@@ -5,6 +5,8 @@
 */
 
 // the setup function runs once when you press reset or power the board
+#include <TimeLib.h>
+#include <Time.h>
 #include <Wire.h>
 #include <OneWire.h>
 enum CMDS
@@ -33,18 +35,17 @@ struct Zone
 	byte currentMoistureLevel;
 	byte setMoistureLevel;
 	byte valveStatus;
-	byte moistureSensorAdress;
+	byte i2cAdress;//use same analog to i2c for both moisture and flowrate
 	byte moistureSensorRegistar;
+	byte flowMeterRegistar;
 	byte valveAdress;
 	int_fast8_t valveOverRide;
-	byte waterFlowRate30s;
-	byte waterUsage;//reset when checked
+	byte waterFlowRate;//current water flow rate
+	unsigned long waterUsage;//reset when checked
+	//unsigned long lastUpdate; //stores the time of the last update
 };
 void setup()
 {
-
-
-	//bellow is used for one wire devces
 
 	Main();
 	//wire.search(address);
@@ -98,6 +99,7 @@ void Main()
 		// add timer
 		Update();
 		Display();
+		
 	}
 }
 
@@ -119,10 +121,13 @@ void Update(Zone Zones[], uint8_t zoneLength, OneWire wire, TwoWire twoWire)// c
 	//TODO turn off moisture sensors power when not in use
 	for (int zone = 0; zone < zoneLength; ++zone)
 	{
-		twoWire.beginTransmission(Zones[zone].moistureSensorAdress);
+		twoWire.beginTransmission(Zones[zone].i2cAdress);
 		twoWire.write(Zones[zone].moistureSensorRegistar);
+		twoWire.write(Zones[zone].flowMeterRegistar);
 		twoWire.endTransmission();
 		Zones[zone].currentMoistureLevel = twoWire.read();
+		Zones[zone].waterFlowRate = twoWire.read();
+		//Zones[zone].lastUpdate = millis();
 		Zones[zone].valveStatus = Zones[zone].setMoistureLevel <= Zones[zone].currentMoistureLevel ? 0 : 255;
 		Zones[zone].valveStatus = Zones[zone].valveOverRide == 0 ? Zones[zone].valveStatus : Zones[zone].valveOverRide;
 	}
