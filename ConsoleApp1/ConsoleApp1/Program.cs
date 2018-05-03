@@ -8,5 +8,16 @@ namespace ConsoleApp1
         {
             Console.WriteLine("Hello World!");
         }
+        static void UserInput()
+        {
+            
+            if (Console.KeyAvailable == true)
+            {
+                switch (Console.ReadKey(true))
+                {
+                    case
+                }
+            }
+        }
     }
 }

@@ -5,6 +5,7 @@
 */
 
 // the setup function runs once when you press reset or power the board
+#include <Wire.h>
 #include <OneWire.h>
 #include <LiquidCrystal.h>
 #include <Stepper.h>
@@ -27,23 +28,35 @@ enum COMPLETION
 	failer,
 	succes
 };
+
 //change pin
-void setup()
+struct Zone
 {
-	byte humidity;// stores the indoor humidity
-	byte addresses[5];//stores addresses for the one-wire devices
-	byte soilWaterLevel[5];
-	byte tempurature[5];
+	byte currentMoistureLevel;
+	byte setMoistureLevel;
+	byte valveStatus;
+	byte moistureSensorAdress;
+	byte valveAdress;
+	int_fast8_t valveOverRide;
+};
+void setup()
+{	
+	
+
 	//bellow is used for one wire devces
-	OneWire wire = OneWire(8);
+	
 	Main();
 	//wire.search(address);
 }
-
 // the loop function runs over and over again until power down or reset
 
 void Main()
 {
+	TwoWire i2c;
+	i2c.begin();
+	OneWire wire = OneWire(8);
+	Zone Zones[10];
+	byte displayStat = 0;
 	Serial.begin(9600);
 	while (true)
 	{
@@ -86,20 +99,27 @@ void Main()
 	}
 }
 
-void Display()
+
+
+void Display(byte state,Zone zones[], byte zonesLength,byte address)
 {
+	//switch for buttons
+	//
+	//
+	state = state >=  zonesLength ? 0 : state;
+	byte letter = state + 0x41;
+	// write to i2c device
+	
 
 }
-void Update(byte addresses[],int addressesLength,byte tempurature[],OneWire wire)// check all sensors and set controls
+void Update(Zone Zones[],uint8_t zoneLength,OneWire wire,TwoWire twoWire)// check all sensors and set controls
 {
-	// have all devices convert first
-	wire.skip();
-	wire.write(0x44,1);
-	
-	for (int addressesIndex  = 0; addressesIndex < addressesLength; addressesIndex++)//check one wire
+
+	for (int zone=0;zone<zoneLength;++zone)
 	{
-		const uint8_t select = addresses[addressesIndex];
-		wire.select(select);
+		//get moisture level from multichannel analog to i2c converter
+		//Zones[zone].currentMoistureLevel = twoWire.requestFrom()
+		Zones[zone].valveStatus = Zones[zone].setMoistureLevel <= Zones[zone].currentMoistureLevel ? 0 : 255;		
 	}
 
 }
@@ -107,9 +127,9 @@ void Reset() //?
 {
 
 }
-void GetTemp()//get tempurature of green house and outdoors
+byte GetTemp(byte addr,OneWire wire)//get tempurature of green house and outdoors
 {
-
+	wire.select(addr);
 }
 void GetHumidity()//get the humidity of the green house
 {
@@ -121,7 +141,7 @@ void SetAlarm()//set alarms if tempurature is outside of certin bounds
 }
 void SetValve()//set water valves
 {
-
+	
 }
 void SetValve(byte addr)//set water valves
 {
