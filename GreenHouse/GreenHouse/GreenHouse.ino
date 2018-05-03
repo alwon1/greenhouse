@@ -7,8 +7,6 @@
 // the setup function runs once when you press reset or power the board
 #include <Wire.h>
 #include <OneWire.h>
-#include <LiquidCrystal.h>
-#include <Stepper.h>
 enum CMDS
 {
 	reset = 0,
@@ -36,8 +34,11 @@ struct Zone
 	byte setMoistureLevel;
 	byte valveStatus;
 	byte moistureSensorAdress;
+	byte moistureSensorRegistar;
 	byte valveAdress;
 	int_fast8_t valveOverRide;
+	byte waterFlowRate30s;
+	byte waterUsage;//reset when checked
 };
 void setup()
 {
@@ -94,6 +95,7 @@ void Main()
 				break;
 			}
 		}
+		// add timer
 		Update();
 		Display();
 	}
@@ -114,12 +116,15 @@ void Display(byte state, Zone zones[], byte zonesLength, byte address)
 }
 void Update(Zone Zones[], uint8_t zoneLength, OneWire wire, TwoWire twoWire)// check all sensors and set controls
 {
-
+	//TODO turn off moisture sensors power when not in use
 	for (int zone = 0; zone < zoneLength; ++zone)
 	{
-		//get moisture level from multichannel analog to i2c converter
-		//Zones[zone].currentMoistureLevel = twoWire.requestFrom()
+		twoWire.beginTransmission(Zones[zone].moistureSensorAdress);
+		twoWire.write(Zones[zone].moistureSensorRegistar);
+		twoWire.endTransmission();
+		Zones[zone].currentMoistureLevel = twoWire.read();
 		Zones[zone].valveStatus = Zones[zone].setMoistureLevel <= Zones[zone].currentMoistureLevel ? 0 : 255;
+		Zones[zone].valveStatus = Zones[zone].valveOverRide == 0 ? Zones[zone].valveStatus : Zones[zone].valveOverRide;
 	}
 
 }
@@ -139,9 +144,9 @@ void SetAlarm()//set alarms if tempurature is outside of certin bounds
 {
 
 }
-void SetValve()//set water valves
+void SetValve(Zone zone,byte value)//set water valves
 {
-
+	zone.valveOverRide = value;
 }
 void SetValve(byte addr)//set water valves
 {
@@ -151,17 +156,21 @@ void SetAir()//controls temp by controlling stepper on air valve
 {
 
 }
-void GetSoil()//get soil moistuer level
+void GetSoil(Zone zones[],byte zonesLength)//get soil moistuer level
 {
 
+	for (uint8_t zone = 0; zone < zonesLength; ++zone) 
+	{
+
+	}
 }
-byte GetSoil(byte addr)//get soil moistuer level
+byte GetSoil(Zone zone)//get soil moistuer level
 {
-
+	return zone.currentMoistureLevel;
 }
-void SetSoil()//set soil moisture level
+void SetSoil(Zone zone)//set soil moisture level
 {
-
+	zone.setMoistureLevel = zone.currentMoistureLevel;
 }
 void SetSoil(byte addr)//set soil moisture level SET while at optimal levels
 {
